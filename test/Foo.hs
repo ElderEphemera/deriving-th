@@ -1,4 +1,4 @@
-{-# language TemplateHaskellQuotes #-}
+{-# language TemplateHaskell #-}
 
 module Foo (Foo(..)) where
 

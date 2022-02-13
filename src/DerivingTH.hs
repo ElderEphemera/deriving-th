@@ -9,8 +9,13 @@ import Data.Foldable
 import Data.Generics
 
 import GHC.Hs
+#if __GLASGOW_HASKELL__ < 900
+import GhcPlugins
+import OccName as NS
+#else
 import GHC.Plugins
 import GHC.Types.Name.Occurrence as NS
+#endif
 #if __GLASGOW_HASKELL__ >= 902
 import GHC.Types.SourceText
 #endif
@@ -55,7 +60,11 @@ internalImport = gen $ ImportDecl
   , ideclSourceSrc = NoSourceText
   , ideclName = gen $ mkModuleName "DerivingTH.Internal"
   , ideclPkgQual = Nothing
+#if __GLASGOW_HASKELL__ < 900
+  , ideclSource = False
+#else
   , ideclSource = NotBoot
+#endif
   , ideclSafe = False
   , ideclQualified = QualifiedPre
   , ideclImplicit = True
@@ -118,8 +127,8 @@ isTemplate _ = False
 
 makeSplice :: LIdP GhcPs -> LHsType GhcPs -> HsDecl GhcPs
 makeSplice tyname cls = SpliceD nxf $ SpliceDecl nxf
-  (gen $ HsUntypedSplice noAnn DollarSplice (mkUnqual NS.varName "splice") $
-     mkHsApps (internalVar NS.varName "deriveTH'") [proxy, name])
+  (gen $ HsUntypedSplice noAnn dollarSplice (mkUnqual NS.varName "splice") $
+     foldl' mkHsApp (internalVar NS.varName "deriveTH'") [proxy, name])
   ExplicitSplice
   where
     proxy = gen $ ExprWithTySig noAnn (internalVar dataName "Proxy") $
@@ -185,3 +194,9 @@ hsib_body :: LHsType GhcPs -> LHsType GhcPs
 hsib_body = id
 #endif
 
+dollarSplice :: SpliceDecoration
+#if __GLASGOW_HASKELL__ < 900
+dollarSplice = HasDollar
+#else
+dollarSplice = DollarSplice
+#endif
