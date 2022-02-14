@@ -67,9 +67,10 @@ The `DeriveTH` class is much more flexible than the standard use case
 requires. The `deriveTH` method gives an arbitrary `Q [Dec]` so you can (ab)use
 it to generate more than one instance or even declarations other than
 instances. Additionally, the parameter of `DeriveTH` is fully polymorphic so you
-can use it with classes with any kind or even non-classes. This adaptability may
-be useful if you have mutually dependent instances or are wrapping some already
-existing functions.
+can use it with classes with any kind, partially applied classes, or even
+non-classes. This adaptability may be useful if you have mutually dependent
+instances or are wrapping some already existing declaration generating
+functions.
 
 ## Supported GHC Versions
 
