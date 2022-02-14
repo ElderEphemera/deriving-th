@@ -20,8 +20,15 @@ source-repository head
   type: git
   location: https://github.com/ElderEphemera/deriving-th
 
+flag validate
+  description: Enable extra compilation checks
+  default: False
+  manual: True
+
 common common
   ghc-options: -Wall
+  if flag(validate)
+    ghc-options: -Werror -dcore-lint
   build-depends:
     base >= 4.14.0 && < 4.17,
     template-haskell >= 2.16.0 && < 2.19,
