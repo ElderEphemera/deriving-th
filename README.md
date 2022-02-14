@@ -2,6 +2,8 @@
 
 A proof of concept GHC plugin for Template Haskell based deriving.
 
+Inspired By https://twitter.com/TechnoEmpress/status/1492411553894871042
+
 ## Usage
 
 To use `deriving-th` with a class, all you have to do is create an instance of
