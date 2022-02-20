@@ -28,7 +28,7 @@ flag validate
 common common
   ghc-options: -Wall
   if flag(validate)
-    ghc-options: -Werror -dcore-lint
+    ghc-options: -Werror -dcore-lint -fforce-recomp
   build-depends:
     base >= 4.14.0 && < 4.17,
     template-haskell >= 2.16.0 && < 2.19,
