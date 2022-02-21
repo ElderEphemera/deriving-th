@@ -43,7 +43,6 @@ library
   hs-source-dirs: src
   build-depends:
     ghc >= 8.10.1 && < 9.3,
-    transformers >= 0.5.6 && < 0.6,
     syb >= 0.7.2 && < 0.8,
 
 test-suite deriving-th-test
