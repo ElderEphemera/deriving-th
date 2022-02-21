@@ -456,5 +456,5 @@ instance KnownSymbol prefix => StringConversion (Strip prefix) where
     let prefix = symbolVal @prefix Proxy
     in case stripPrefix prefix str of
       Just rest -> rest
-      Nothing -> error $ "Then name '" ++ str
+      Nothing -> error $ "The name '" ++ str
         ++ "' does not start with prefix '" ++ prefix ++ "'"
