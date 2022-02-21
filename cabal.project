@@ -1,3 +1,7 @@
 packages:
   deriving-th.cabal
   aeson/deriving-th-aeson.cabal
+
+-- Without explicitly enabling tests, `cabal test all` will silently omit test
+-- suites whose dependencies cannot be solved.
+tests: true

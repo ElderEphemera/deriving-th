@@ -15,7 +15,7 @@ for version in "${versions[@]}"; do
     nix-shell \
         --pure \
         --argstr ghc "$version" \
-        --run "ghc --version && cabal test -fvalidate"
+        --run "ghc --version && cabal test all -fvalidate"
 done
 
 echo $SEP
