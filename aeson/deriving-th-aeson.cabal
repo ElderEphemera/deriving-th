@@ -25,7 +25,14 @@ flag validate
   manual: True
 
 common common
-  ghc-options: -Wall
+  ghc-options:
+    -Weverything
+    -Wno-unsafe -Wno-safe -Wno-missing-safe-haskell-mode
+    -Wno-monomorphism-restriction -Wno-missing-local-signatures
+    -Wno-missing-import-lists -Wno-implicit-prelude
+    -Wno-missed-specialisations -Wno-all-missed-specialisations
+  if impl(ghc >= 9.2.1)
+    ghc-options: -Wno-missing-kind-signatures
   if flag(validate)
     ghc-options: -Werror -dcore-lint -fforce-recomp
   build-depends:
