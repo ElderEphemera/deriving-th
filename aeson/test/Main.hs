@@ -1,6 +1,7 @@
 {-# options_ghc -fplugin=DerivingTH #-}
 
 {-# language DataKinds #-}
+{-# language DerivingStrategies #-}
 {-# language OverloadedStrings #-}
 {-# language TypeApplications #-}
 
@@ -18,20 +19,20 @@ import Test.HUnit
 
 
 data SimpleProd = SimpleProd Bool Char
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
   deriving (ToJSON, FromJSON) via template
 
 data SimpleProd1 a = SimpleProd1 Bool a
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
   deriving (ToJSON, FromJSON, ToJSON1, FromJSON1) via template
 
 data SimpleProd2 a b = SimpleProd2 a b
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
   deriving (ToJSON, FromJSON, ToJSON1, FromJSON1, ToJSON2, FromJSON2)
     via template
 
 newtype Named = NamedThingCONSTRName { namedThingFIELDName :: Bool }
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
   deriving (JSONWith
     ( TagSingleConstructors
     , TaggedObject "constr" "_"
@@ -41,31 +42,31 @@ newtype Named = NamedThingCONSTRName { namedThingFIELDName :: Bool }
     )) via template
 
 data Enumeration = EnumCONSTROne | EnumCONSTRTwo
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
   deriving (JSONWith (NoAllNullaryToStringTag, Camel)) via template
 
 data RecordA = RecordA { aMaybeChar :: Maybe Char, aBool :: Bool }
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
   deriving (JSONWith (OmitNothingFields, Snake)) via template
 
 newtype RecordB = RecordB { bRECChar :: Char }
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
   deriving (JSONWith (RejectUnknownFields, Title)) via template
 
 newtype RecordC = RecordC { cBool :: Bool }
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
   deriving (JSONWith UnwrapUnaryRecords) via template
 
 data SumA = SumABool Bool | SumAChar Char
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
   deriving (JSONWith UntaggedValue) via template
 
 data SumB = SumBBool Bool | SumBChar Char
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
   deriving (JSONWith ObjectWithSingleField) via template
 
 data SumC = SumCBool Bool | SumCChar Char
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
   deriving (JSONWith TwoElemArray) via template
 
 
