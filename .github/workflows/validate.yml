@@ -18,9 +18,18 @@ jobs:
 
     - name: Cachix
       uses: cachix/cachix-action@v10
+      if: github.event_name == 'push'
       with:
         name: elderephemera
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+        extraPullNames: ghc
+
+    - name: Cachix
+      uses: cachix/cachix-action@v10
+      if: github.event_name != 'push'
+      with:
+        name: elderephemera
+        skipPush: true
         extraPullNames: ghc
 
     - name: Validate
