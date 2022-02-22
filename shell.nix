@@ -1,4 +1,13 @@
-{ pkgs ? import <nixpkgs> {}
+let
+  pinnedNixPkgs =
+    import (builtins.fetchTarball {
+      name = "nixpkgs-21.11";
+      url = "https://github.com/NixOS/nixpkgs/archive/refs/tags/21.11.tar.gz";
+      sha256 = "162dywda2dvfj1248afxc45kcrg83appjd0nmdb541hl7rnncf02";
+    }) {};
+in
+
+{ pkgs ? pinnedNixPkgs
 , ghc ? "9_2_1"
 , cabal ? "3_6_2_0"
 }:
