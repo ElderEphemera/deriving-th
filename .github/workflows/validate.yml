@@ -1,0 +1,29 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+    types: [opened, edited, reopened]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2.4.0
+
+    - name: Install Nix
+      uses: cachix/install-nix-action@v16
+
+    - name: Cachix
+      uses: cachix/cachix-action@v10
+      with:
+        name: elderephemera
+        signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+        extraPullNames: ghc
+
+    - name: Validate
+      run: |
+        nix-shell --run 'cabal update'
+        ./validate
