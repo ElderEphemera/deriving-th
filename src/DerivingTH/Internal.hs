@@ -1,3 +1,4 @@
+{-# language PolyKinds #-}
 {-# language ScopedTypeVariables #-}
 {-# language TypeApplications #-}
 
