@@ -1,4 +1,9 @@
-module DerivingTH.Internal (deriveTH', Proxy(Proxy)) where
+module DerivingTH.Internal
+  ( deriveTH', deriveTHType', placeholder, Proxy(Proxy)
+  ) where
 
-import DerivingTH.Class (deriveTH')
+import DerivingTH.Class (deriveTH', deriveTHType')
 import Data.Proxy (Proxy(Proxy))
+
+placeholder :: a
+placeholder = undefined

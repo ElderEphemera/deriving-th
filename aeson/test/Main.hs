@@ -28,8 +28,11 @@ data SimpleProd1 a = SimpleProd1 Bool a
 
 data SimpleProd2 a b = SimpleProd2 a b
   deriving stock (Eq, Show)
-  deriving (ToJSON, FromJSON, ToJSON1, FromJSON1, ToJSON2, FromJSON2)
+  deriving (ToJSON, ToJSON1, ToJSON2)
     via template
+deriving via template instance FromJSON (SimpleProd2 a b)
+deriving via template instance FromJSON1 (SimpleProd2 a)
+deriving via template instance FromJSON2 SimpleProd2
 
 newtype Named = NamedThingCONSTRName { namedThingFIELDName :: Bool }
   deriving stock (Eq, Show)

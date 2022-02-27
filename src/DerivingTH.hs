@@ -1,5 +1,6 @@
 {-# language CPP #-}
 {-# language OverloadedStrings #-}
+{-# language PatternSynonyms #-}
 
 module DerivingTH (plugin) where
 
@@ -89,13 +90,9 @@ processDecl decl = [decl]
 processDerivDecl :: DerivDecl GhcPs -> HsDecl GhcPs
 processDerivDecl (DerivDecl _ sigty strat _overlap)
   | isTemplate strat
-#if __GLASGOW_HASKELL__ < 902
-  , HsWC _ (HsIB _ ty) <- sigty
-#else
-  , HsWC _ (L _ (HsSig _ _ ty)) <- sigty
-#endif
-  , L _ (HsAppTy _ cls (L _ (HsTyVar _ NotPromoted tyname))) <- ty
-  = makeSplice tyname cls
+  , IgnoredBinders ty <- sigty
+  , L _ (HsAppTy _ cls subjTy) <- ty
+  = makeSplice (TypeSubject subjTy) cls
 processDerivDecl derivDecl = DerivD nxf derivDecl
 
 processDerivClauses
@@ -111,7 +108,8 @@ processDerivClause
   -> Either [LHsDecl GhcPs] (LHsDerivingClause GhcPs)
 processDerivClause tyname (L l (HsDerivingClause _ strat (L _ clss)))
   | isTemplate strat
-  = Left $ L (locAnn l) . makeSplice tyname . hsib_body <$> derivClauseTys clss
+  = Left $ L (locAnn l) . makeSplice (NameSubject tyname) . hsib_body
+    <$> derivClauseTys clss
 processDerivClause _tyname derivClause = Right derivClause
 
 isTemplate :: Maybe (LDerivStrategy GhcPs) -> Bool
@@ -125,21 +123,32 @@ isTemplate (Just (L _ (ViaStrategy via)))
   = occNameFS occ == "template"
 isTemplate _ = False
 
-makeSplice :: LIdP GhcPs -> LHsType GhcPs -> HsDecl GhcPs
-makeSplice tyname cls = SpliceD nxf $ SpliceDecl nxf
+makeSplice :: Subject -> LHsType GhcPs -> HsDecl GhcPs
+makeSplice subj cls = SpliceD nxf $ SpliceDecl nxf
   (gen $ HsUntypedSplice noAnn dollarSplice (mkUnqual NS.varName "splice") $
-     foldl' mkHsApp (internalVar NS.varName "deriveTH'") [proxy, name])
+     foldl' mkHsApp method [proxy, subjectExpr subj])
   ExplicitSplice
   where
-    proxy = gen $ ExprWithTySig noAnn (internalVar dataName "Proxy") $
-      HsWC nxf $ sigTy $ mkHsAppTy (internalTyVar tcName "Proxy") cls
+    method = internalVar NS.varName $ subjectMethod subj
+    proxy = gen . ExprWithTySig noAnn (internalVar dataName "Proxy") .
+      IgnoredBinders $ mkHsAppTy (internalTyVar tcName "Proxy") cls
+
+data Subject
+  = NameSubject (LIdP GhcPs)
+  | TypeSubject (LHsType GhcPs)
+
+subjectMethod :: Subject -> FastString
+subjectMethod (NameSubject _) = "deriveTH'"
+subjectMethod (TypeSubject _) = "deriveTHType'"
+
+subjectExpr :: Subject -> LHsExpr GhcPs
 #if __GLASGOW_HASKELL__ < 902
-    sigTy = HsIB nxf
-    name = HsBracket noAnn . VarBr nxf True <$> tyname
+subjectExpr (NameSubject name) = HsBracket noAnn . VarBr nxf True <$> name
 #else
-    sigTy = gen . HsSig nxf (HsOuterImplicit nxf)
-    name = gen . HsBracket noAnn . VarBr nxf True $ tyname
+subjectExpr (NameSubject name) = gen . HsBracket noAnn . VarBr nxf True $ name
 #endif
+subjectExpr (TypeSubject ty) = gen . HsBracket noAnn . ExpBr nxf . gen $
+  ExprWithTySig noAnn (internalVar NS.varName "placeholder") (IgnoredBinders ty)
 
 
 --------------------------------------------------------------------------------
@@ -199,4 +208,13 @@ dollarSplice :: SpliceDecoration
 dollarSplice = HasDollar
 #else
 dollarSplice = DollarSplice
+#endif
+
+pattern IgnoredBinders :: LHsType GhcPs -> LHsSigWcType GhcPs
+#if __GLASGOW_HASKELL__ < 902
+pattern IgnoredBinders ty <- HsWC _ (HsIB _ ty)
+  where IgnoredBinders ty = HsWC nxf (HsIB nxf ty)
+#else
+pattern IgnoredBinders ty <- HsWC _ (L _ (HsSig _ _ ty))
+  where IgnoredBinders ty = HsWC nxf (gen (HsSig nxf (HsOuterImplicit nxf) ty))
 #endif
