@@ -4,9 +4,7 @@
 {-# language ScopedTypeVariables #-}
 {-# language TypeApplications #-}
 
-module DerivingTH.Class
-  ( DeriveTH(deriveTH, deriveTHType), deriveTH', deriveTHType'
-  ) where
+module DerivingTH.Class (DeriveTH(deriveTH, deriveTHType)) where
 
 import Control.Applicative (liftA2)
 
@@ -34,14 +32,6 @@ class DeriveTH (cls :: k) where
       , nest 4 $ text "The last instance type must be of the form (T a1 ... an) but it is"
         <+> quotes (ppr ty)
       ]
-
-deriveTH' :: forall cls proxy. DeriveTH cls => proxy cls -> Name -> Q [Dec]
-deriveTH' _ = deriveTH @_ @cls
-
-deriveTHType' :: forall cls proxy. DeriveTH cls => proxy cls -> Q Exp -> Q [Dec]
-deriveTHType' _ qexp = do
-  (SigE _ ty) <- qexp
-  deriveTHType @_ @cls ty
 
 
 (&+) :: (a -> Q [Dec]) -> (a -> Q [Dec]) -> (a -> Q [Dec])
