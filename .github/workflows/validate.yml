@@ -23,6 +23,12 @@ jobs:
         skipPush: true
         extraPullNames: ghc
 
+    - name: Cache Cabal Store
+      uses: actions/cache@v2.1.7
+      with:
+        path: ~/.cabal/store
+        key: ${{ runner.os }}-${{ hashFiles('**/*.cabal') }}
+
     - name: Validate
       run: |
         nix-shell --run 'cabal update'
